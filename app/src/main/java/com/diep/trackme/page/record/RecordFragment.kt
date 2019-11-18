@@ -1,4 +1,4 @@
-package com.diep.trackme.record
+package com.diep.trackme.page.record
 
 
 import android.Manifest

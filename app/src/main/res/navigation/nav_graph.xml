@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/recordFragment"
-        android:name="com.diep.trackme.record.RecordFragment"
+        android:name="com.diep.trackme.page.record.RecordFragment"
         android:label="fragment_record"
         tools:layout="@layout/fragment_record" />
 </navigation>
