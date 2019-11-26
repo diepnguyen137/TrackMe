@@ -64,12 +64,10 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = activity.run {
-            ViewModelProviders.of(activity!!, BaseViewModelFactory {
-                HistoryViewModel(context!!)
-            }).get(HistoryViewModel::class.java)
+        viewModel = ViewModelProviders.of(activity!!, BaseViewModelFactory {
+            HistoryViewModel(activity!!)
+        }).get(HistoryViewModel::class.java)
 
-        }
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity!!)
     }
@@ -103,8 +101,6 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
         }
         stop_btn.setOnClickListener {
-//            state = RecordState.PAUSE
-//            updateRecordState()
             viewModel.triggerSaveRecord(
                 Record(
                     record_distance_tv.text.toString(),
@@ -113,7 +109,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
                     startLocation.latitude,
                     startLocation.longitude,
                     currentLocation.latitude,
-                    currentLocation.latitude
+                    currentLocation.longitude
                 )
             )
         }
@@ -146,12 +142,17 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
         MapsInitializer.initialize(context)
         this.map = map ?: return
         if (locationPermissionGranted) {
-            with(this.map) {
-                isMyLocationEnabled = true
-                uiSettings.isMyLocationButtonEnabled = true
-            }
+            loadMap()
+
         } else {
             checkPermissionForGetLocation()
+        }
+    }
+
+    private fun loadMap() {
+        with(this.map) {
+            isMyLocationEnabled = true
+            uiSettings.isMyLocationButtonEnabled = true
         }
         showCurrentLocation()
     }
@@ -212,8 +213,6 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
                         }
                     }
                     startLocationManager()
-                    chronometer.start()
-
                 }
             }
         } else {
@@ -232,8 +231,8 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
             REQUEST_CODE -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     locationPermissionGranted = true
+                    loadMap()
                 } else {
-
                 }
                 return
             }
@@ -251,8 +250,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
             )
             != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                activity!!,
+            requestPermissions(
                 arrayOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -266,15 +264,17 @@ class RecordFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     override fun onLocationChanged(location: Location?) {
         currentLocation = location!!
-        currentLatLng = LatLng(location.latitude, location.longitude)
+        if (!chronometer.isActivated) {
+            chronometer.start()
+        }
         drawLine()
         updateDistance()
         updateSpeed()
     }
 
     private fun drawLine() {
+        currentLatLng = LatLng(currentLocation.latitude, currentLocation.longitude)
         with(map) {
-            line?.remove()
             line = addPolyline(PolylineOptions().add(startLatLng, currentLatLng))
             line?.color = Color.RED
         }

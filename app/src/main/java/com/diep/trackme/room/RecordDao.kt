@@ -9,7 +9,7 @@ import com.diep.trackme.model.Record
 @Dao
 interface RecordDao {
     @Insert
-    fun saveRecord(vararg record: Record)
+    fun insertRecord(vararg record: Record)
 
     @Query("SELECT * FROM record_db")
     fun getRecordList():LiveData<List<Record>>

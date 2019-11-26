@@ -13,7 +13,6 @@ abstract class RecordRoom : RoomDatabase(){
     companion object{
         @Volatile
         private var INSTANCE: RecordRoom? = null
-
         fun getDatabase(context: Context): RecordRoom{
             val tempInstance = INSTANCE
             if(tempInstance != null){

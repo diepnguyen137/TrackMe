@@ -14,33 +14,20 @@ import kotlinx.coroutines.launch
 
 class HistoryViewModel(context: Context) : ViewModel() {
     private var dao: RecordDao = RecordRoom.getDatabase(context).recordDao()
-    private val localRecordList = arrayListOf<Record>()
     //Signal
-    val recordList: LiveData<ArrayList<Record>>
-        get() = _recordList
-    //Subject
-    private val _recordList by lazy { MutableLiveData<ArrayList<Record>>() }
-
-    init {
-        getListRecord()
-    }
+    var recordList: LiveData<List<Record>>? = null
 
     //Trigger
     fun triggerSaveRecord(record: Record) = viewModelScope.launch (Dispatchers.IO){
         saveRecord(record)
     }
 
-    private fun getListRecord() {
-        if(dao.getRecordList().value != null){
-            localRecordList.addAll(dao.getRecordList().value!!)
-        }
-        _recordList.value = localRecordList
+    fun getListRecord(){
+        recordList =  dao.getRecordList()
     }
 
     @WorkerThread
     suspend fun saveRecord(record:Record){
-        dao.saveRecord(record)
+        dao.insertRecord(record)
     }
-
-
 }

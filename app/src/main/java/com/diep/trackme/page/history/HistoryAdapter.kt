@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.android.synthetic.main.history_item.view.*
 
 class HistoryAdapter(context: Context): RecyclerView.Adapter<HistoryAdapter.ViewHolder>(){
-    private var recordList: ArrayList<Record> = arrayListOf()
+    private var recordList: List<Record> = listOf()
     private var context = context
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +34,7 @@ class HistoryAdapter(context: Context): RecyclerView.Adapter<HistoryAdapter.View
         holder.bind(recordList[position])
 
     }
-    fun setAdapter (value: ArrayList<Record>){
+    fun setAdapter (value: List<Record>){
         recordList = value
     }
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView), OnMapReadyCallback{
@@ -56,7 +56,7 @@ class HistoryAdapter(context: Context): RecyclerView.Adapter<HistoryAdapter.View
         private fun setUpMap() {
             if (!::map.isInitialized) return
             with(map){
-                moveCamera(CameraUpdateFactory.newLatLngZoom(stopLatLng,13f))
+                moveCamera(CameraUpdateFactory.newLatLngZoom(startLatLng,13f))
                 addMarker(MarkerOptions().position(startLatLng))
                 addMarker(MarkerOptions().position(stopLatLng))
                 val line = addPolyline(PolylineOptions().add(startLatLng,stopLatLng))
@@ -71,8 +71,8 @@ class HistoryAdapter(context: Context): RecyclerView.Adapter<HistoryAdapter.View
             }
         }
         fun bind(item: Record){
-            itemView.distance_tv.setDistanceText(item.distance)
-            itemView.speed_tv.setSpeedText(item.averageSpeed)
+            itemView.distance_tv.text = item.distance
+            itemView.speed_tv.text = item.averageSpeed
             itemView.duration_tv.text = item.durationVal
             startLatLng = LatLng(item.startLat, item.startLng)
             stopLatLng = LatLng(item.stopLat, item.stopLng)
